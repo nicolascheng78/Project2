@@ -1,0 +1,175 @@
+# Configuration for Indonesian Stock ML Prediction System
+
+# Data Configuration
+data:
+  # Indonesian stock market tickers (top liquid names)
+  universe:
+    - BBCA.JK  # Bank Central Asia
+    - BBRI.JK  # Bank Rakyat Indonesia
+    - BMRI.JK  # Bank Mandiri
+    - TLKM.JK  # Telkom Indonesia
+    - ASII.JK  # Astra International
+    - UNVR.JK  # Unilever Indonesia
+    - ICBP.JK  # Indofood CBP
+    - KLBF.JK  # Kalbe Farma
+    - INDF.JK  # Indofood Sukses Makmur
+    - GGRM.JK  # Gudang Garam
+  
+  # Market index and macro indicators
+  macro_tickers:
+    index: ^JKSE  # Jakarta Composite Index
+    forex: USDIDR=X  # USD/IDR exchange rate
+    # Note: BI rate and commodity data may need alternative sources
+  
+  # Date range
+  start_date: "2000-01-01"
+  end_date: null  # null means current date
+  
+  # Top N liquid stocks to focus on
+  top_n_liquid: 50
+  
+  # Cache directory
+  cache_dir: "artifacts/data"
+
+# Feature Engineering Configuration
+features:
+  # Technical indicators windows (days)
+  technical_windows: [5, 10, 20, 50, 120]
+  
+  # Momentum windows
+  momentum_windows: [5, 10, 20, 60]
+  
+  # Volatility windows
+  volatility_windows: [10, 20, 60]
+  
+  # Volume windows
+  volume_windows: [5, 20, 60]
+  
+  # Feature shift to avoid leakage
+  shift_periods: 1
+
+# Model Configuration
+models:
+  # Classification model for Up/Down prediction
+  classification:
+    model_type: "lightgbm"  # Options: lightgbm, xgboost, lstm, transformer
+    params:
+      n_estimators: 500
+      max_depth: 7
+      learning_rate: 0.05
+      subsample: 0.8
+      colsample_bytree: 0.8
+      reg_alpha: 0.1
+      reg_lambda: 1.0
+      random_state: 42
+    
+    # Probability calibration
+    calibration_method: "isotonic"  # Options: platt, isotonic
+    
+  # Regression model for return prediction
+  regression:
+    model_type: "lightgbm"  # Options: lightgbm, xgboost, lstm, transformer
+    params:
+      n_estimators: 500
+      max_depth: 7
+      learning_rate: 0.05
+      subsample: 0.8
+      colsample_bytree: 0.8
+      reg_alpha: 0.1
+      reg_lambda: 1.0
+      random_state: 42
+    
+    # Uncertainty estimation
+    quantile_regression: true
+    quantiles: [0.1, 0.5, 0.9]
+
+# Prediction Horizons
+horizons:
+  - 21   # 1 month (trading days)
+  - 63   # 3 months
+  - 126  # 6 months
+
+# Monte Carlo Simulation
+monte_carlo:
+  n_simulations: 10000
+  method: "gbm"  # Options: gbm, bootstrap
+  percentiles: [10, 25, 50, 75, 90]
+
+# Trading Strategy Configuration
+strategy:
+  # Entry conditions
+  entry:
+    min_probability: 0.60  # Minimum P(up) for long entry
+    min_expected_return: 0.05  # Minimum expected return (5%)
+  
+  # Exit conditions
+  exit:
+    max_drawdown: 0.15  # Maximum allowed drawdown (15%)
+    profit_target: 0.20  # Take profit at 20%
+  
+  # Position sizing
+  position_sizing:
+    method: "volatility_target"  # Options: equal, volatility_target, kelly
+    target_volatility: 0.15  # 15% annualized
+    max_position_size: 0.20  # Maximum 20% of portfolio per position
+  
+  # Risk management
+  max_positions: 10
+  rebalance_frequency: 20  # trading days
+
+# Backtesting Configuration
+backtest:
+  # Walk-forward settings
+  train_window: 1260  # 5 years of trading days
+  test_window: 252    # 1 year of trading days
+  step_size: 63       # 3 months
+  
+  # Transaction costs
+  costs:
+    commission: 0.0025  # 25 bps per trade
+    slippage: 0.0015    # 15 bps slippage
+    total_roundtrip: 0.0040  # 40 bps total (mid-range)
+  
+  # Liquidity constraints
+  max_adv_percentage: 0.05  # Max 5% of average daily volume
+  
+  # Performance targets
+  target_cagr: 0.15  # 15% CAGR target
+  
+  # Metrics to track
+  metrics:
+    - cagr
+    - sharpe_ratio
+    - sortino_ratio
+    - max_drawdown
+    - hit_rate
+    - turnover
+    - calmar_ratio
+
+# Hyperparameter Optimization
+hpo:
+  enabled: false
+  n_trials: 100
+  method: "optuna"  # Options: optuna, grid_search, random_search
+  
+  # Search space (for LightGBM)
+  search_space:
+    n_estimators: [100, 500, 1000]
+    max_depth: [3, 5, 7, 10]
+    learning_rate: [0.01, 0.05, 0.1]
+    subsample: [0.6, 0.8, 1.0]
+    colsample_bytree: [0.6, 0.8, 1.0]
+
+# Output Configuration
+output:
+  models_dir: "artifacts/models"
+  plots_dir: "artifacts/plots"
+  results_dir: "artifacts/results"
+  
+  # Save intermediate results
+  save_predictions: true
+  save_feature_importance: true
+  save_shap_values: true
+
+# Reproducibility
+random_seed: 42
