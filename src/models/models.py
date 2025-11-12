@@ -524,8 +524,15 @@ class CombinedStockPredictor:
         Returns:
             Dictionary with predictions
         """
+        probas = self.classifier.predict_proba(X)
+        # Handle case where only one class is present
+        if probas.shape[1] == 1:
+            direction_proba = probas[:, 0]
+        else:
+            direction_proba = probas[:, 1]
+        
         return {
-            'direction_proba': self.classifier.predict_proba(X)[:, 1],
+            'direction_proba': direction_proba,
             'direction': self.classifier.predict(X),
             'expected_return': self.regressor.predict(X),
             'return_quantiles': self.regressor.predict_quantiles(X) if self.regressor.quantile_models else None
