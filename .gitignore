@@ -1,0 +1,75 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Data and artifacts (cached data, models, plots)
+artifacts/data/*.pkl
+artifacts/data/*.csv
+artifacts/models/*.pkl
+artifacts/models/*.h5
+artifacts/plots/*.png
+artifacts/plots/*.jpg
+artifacts/results/*.csv
+artifacts/results/*.json
+
+# Keep directory structure but ignore contents
+!artifacts/data/.gitkeep
+!artifacts/models/.gitkeep
+!artifacts/plots/.gitkeep
+!artifacts/results/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Environment variables
+.env
+.env.local
